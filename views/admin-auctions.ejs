@@ -1,0 +1,65 @@
+<% layout('layout', { title: 'Panel Admin — Subastas' }) %>
+<div class="card">
+  <div class="flex" style="justify-content:space-between">
+    <h2>Subastas</h2>
+    <form method="post" action="/admin/logout"><button>Salir</button></form>
+  </div>
+  <table class="table" style="margin-top:10px">
+    <tr><th>Título</th><th>Estado</th><th>Inicio</th><th>Duración</th><th>Pujas</th><th>Ganador</th><th>Acciones</th></tr>
+    <% auctions.forEach(a => { %>
+      <tr>
+        <td><%= a.title %></td>
+        <td><span class="badge"><%= a.status %></span></td>
+        <td><%= a.start_time?.toISOString ? a.start_time.toISOString() : a.start_time %></td>
+        <td><%= a.duration_seconds %>s</td>
+        <td><%= a.bid_count || 0 %></td>
+        <td><%= a.winner_email || '-' %></td>
+        <td>
+          <a href="/auction/<%= a.id %>" target="_blank">Ver</a>
+          <% if (a.status !== 'ended' && a.status !== 'paid') { %> | <a href="/admin/auctions/<%= a.id %>/end">Forzar fin</a> <% } %>
+        </td>
+      </tr>
+    <% }) %>
+  </table>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <h3>Crear nueva subasta</h3>
+  <form method="post" action="/admin/auctions">
+    <label>Título</label>
+    <input name="title" required />
+    <label>Producto del catálogo (Square)</label>
+    <select name="catalog_object_id" required>
+      <% catalogItems.forEach(i => { %>
+        <option value="<%= i.id %>"><%= i.name %></option>
+      <% }) %>
+    </select>
+    <div class="flex">
+      <div style="flex:1">
+        <label>Precio inicio (EUR)</label>
+        <input name="start_price_eur" type="number" min="0.1" step="0.01" required />
+      </div>
+      <div style="flex:1">
+        <label>Duración (segundos)</label>
+        <input name="duration_seconds" type="number" min="10" step="5" required />
+      </div>
+    </div>
+    <div class="flex">
+      <div style="flex:1">
+        <label>Mín. nº de pujas (opcional)</label>
+        <input name="min_bids" type="number" min="0" />
+      </div>
+      <div style="flex:1">
+        <label>Máx. nº de pujas (opcional)</label>
+        <input name="max_bids" type="number" min="0" />
+      </div>
+    </div>
+    <div class="flex">
+      <div style="flex:1">
+        <label>Fecha/hora de inicio (ISO) — opcional, vacío = ahora</label>
+        <input name="start_time_iso" placeholder="2025-09-09T20:00:00Z" />
+      </div>
+    </div>
+    <div style="margin-top:12px"><button>Crear</button></div>
+  </form>
+</div>
