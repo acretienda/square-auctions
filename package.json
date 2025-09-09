@@ -1,32 +1,21 @@
 {
-  "name": "square-auctions-on-render",
+  "name": "square-auctions",
   "version": "1.0.0",
-  "private": true,
-  "engines": {
-    "node": ">=18"
-  },
+  "description": "App de subastas integrada con Square, lista para desplegar en Render",
+  "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "NODE_ENV=development nodemon server.js"
+    "start": "node server.js"
   },
   "dependencies": {
-    "@square/square": "^38.0.0",
-    "axios": "^1.7.2",
-    "cookie-parser": "^1.4.6",
-    "csurf": "^1.11.0",
-    "dayjs": "^1.11.13",
-    "dotenv": "^16.4.5",
-    "ejs": "^3.1.10",
-    "express": "^4.19.2",
-    "express-ejs-layouts": "^2.5.1",
-    "express-session": "^1.17.3",
-    "helmet": "^7.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "multer": "^1.4.5-lts.1",
-    "nanoid": "^5.0.7",
-    "nodemailer": "^6.9.14",
-    "pg": "^8.11.5",
-    "socket.io": "^4.7.5",
-    "uuid": "^9.0.1"
+    "axios": "^1.6.7",
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "nodemailer": "^6.9.8",
+    "pg": "^8.11.3"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
