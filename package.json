@@ -1,27 +1,31 @@
 {
   "name": "square-auctions",
   "version": "1.0.0",
-  "description": "Subastas en línea con integración de pagos Square",
+  "description": "Plataforma de subastas en tiempo real con integración Square",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
+  "engines": {
+    "node": ">=18.x"
+  },
   "dependencies": {
-    "express": "^4.18.2",
-    "express-session": "^1.17.3",
-    "express-ejs-layouts": "^2.5.1",
-    "dotenv": "^16.0.3",
-    "@square/square": "^43.0.0"
+    "@square/square": "^43.0.0",
+    "axios": "^1.6.8",
     "body-parser": "^1.20.2",
-    "cors": "^2.8.5",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.9",
+    "express": "^4.19.2",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.17.3",
+    "pg": "^8.11.3",
+    "sequelize": "^6.37.3",
     "socket.io": "^4.7.5"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "license": "MIT"
+    "nodemon": "^3.1.0"
+  }
 }
