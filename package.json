@@ -8,7 +8,7 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
-    "@square/square": "latest",
+    "@square/square": "^43.0.2",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-ejs-layouts": "^2.5.1",
