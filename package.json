@@ -1,5 +1,5 @@
 {
-  "name": "square-auctions",
+  "name": "square-auctions-backend",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
@@ -7,12 +7,10 @@
   },
   "dependencies": {
     "express": "^4.18.2",
-    "socket.io": "^4.7.2",
-    "pg": "^8.11.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "uuid": "^9.0.1",
+    "pg": "^8.11.3",
     "bcrypt": "^5.1.1",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "dotenv": "^16.4.5",
+    "cors": "^2.8.5"
   }
 }

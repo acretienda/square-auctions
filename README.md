@@ -1,22 +1,13 @@
-# Subastas con Square — listo para Render
+Square Auctions backend (updated)
 
-App Node.js (Express + Socket.IO + PostgreSQL) que:
-- Crea subastas de productos de tu **Catálogo de Square**.
-- Pujas en tiempo real.
-- Finaliza por tiempo o por nº mínimo/máximo de pujas.
-- Genera **Payment Link** de Square para el ganador.
-- Envía alertas por email por cada puja y notifica al ganador.
+What this package does:
+- Creates 'admins' table automatically (if missing)
+- Creates a default admin if table empty (DEFAULT_ADMIN_USER / DEFAULT_ADMIN_PASSWORD env vars)
+- Provides POST /api/admin/login which returns JWT signed with JWT_SECRET env var
+- Protect routes with middleware in middleware/auth.js
 
-## Despliegue (Render)
-1. Crea un repo con este proyecto y usa **Render → New → Blueprint** (usa `render.yaml`).
-2. Variables de entorno requeridas (ver `.env.example`).
-3. Start command: `node server.js` (ya en package.json).
-
-## Rutas
-- `/admin` (login, gestión de subastas)
-- `/auction/:id` (página pública de pujas)
-- `/webhooks/square` (webhook de pagos Square)
-
-## Notas
-- En producción, verifica la **firma del webhook**.
-- Moneda por defecto: **EUR**.
+Deploy notes for Render:
+1. Ensure DATABASE_URL is configured in Render (managed when you added DB)
+2. Add JWT_SECRET in Environment => Settings on Render (you already did)
+3. OPTIONAL: set DEFAULT_ADMIN_USER and DEFAULT_ADMIN_PASSWORD env vars if you prefer custom defaults
+4. Push these files to your repo and trigger a deploy on Render
