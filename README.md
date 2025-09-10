@@ -1,13 +1,13 @@
-Square Auctions backend (updated)
+Backend with admin management:
 
-What this package does:
-- Creates 'admins' table automatically (if missing)
-- Creates a default admin if table empty (DEFAULT_ADMIN_USER / DEFAULT_ADMIN_PASSWORD env vars)
-- Provides POST /api/admin/login which returns JWT signed with JWT_SECRET env var
-- Protect routes with middleware in middleware/auth.js
+Endpoints:
+- POST /api/admin/login { email, password } -> { token }
+- GET /api/admin/ (protected) -> list admins
+- POST /api/admin/ (protected) { email, password } -> create admin
+- DELETE /api/admin/:id (protected) -> delete admin
 
-Deploy notes for Render:
-1. Ensure DATABASE_URL is configured in Render (managed when you added DB)
-2. Add JWT_SECRET in Environment => Settings on Render (you already did)
-3. OPTIONAL: set DEFAULT_ADMIN_USER and DEFAULT_ADMIN_PASSWORD env vars if you prefer custom defaults
-4. Push these files to your repo and trigger a deploy on Render
+Env vars:
+- DATABASE_URL (Render DB)
+- JWT_SECRET
+- DEFAULT_ADMIN_USER (optional)
+- DEFAULT_ADMIN_PASSWORD (optional)
