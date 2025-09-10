@@ -1,61 +1,56 @@
-const { Pool } = require('pg');
-const bcrypt = require('bcrypt');
+const { Pool } = require("pg");
+const bcrypt = require("bcrypt");
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: { rejectUnauthorized: false }
 });
 
-async function ensureTable(){
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS admins (
-      id SERIAL PRIMARY KEY,
-      email VARCHAR(200) UNIQUE NOT NULL,
-      password_hash TEXT NOT NULL,
-      created_at TIMESTAMP DEFAULT NOW()
-    );
-  `);
-}
-
-async function ensurePasswordHashColumn(){
-  const colRes = await pool.query(`
-    SELECT column_name FROM information_schema.columns
-    WHERE table_name='admins' AND column_name='password_hash'
-  `);
-  if (colRes.rowCount === 0){
-    await pool.query(`ALTER TABLE admins ADD COLUMN password_hash TEXT;`);
-    const oldCol = await pool.query(`
-      SELECT column_name FROM information_schema.columns
-      WHERE table_name='admins' AND column_name='password'
+// ✅ Función para inicializar la DB
+async function initDB() {
+  try {
+    // 1. Crear tabla admins si no existe
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS admins (
+        id SERIAL PRIMARY KEY,
+        email TEXT UNIQUE,
+        password_hash TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
     `);
-    if (oldCol.rowCount > 0){
-      const rows = await pool.query('SELECT id, password FROM admins');
-      for (const r of rows.rows){
-        const hashed = await bcrypt.hash(r.password || 'admin123', 10);
-        await pool.query('UPDATE admins SET password_hash=$1 WHERE id=$2', [hashed, r.id]);
-      }
-      console.log('✅ Migrated old password -> password_hash for existing admins');
+
+    // 2. Verificar y añadir columnas si faltan
+    const res = await pool.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'admins';
+    `);
+
+    const columns = res.rows.map(r => r.column_name);
+
+    if (!columns.includes("email")) {
+      await pool.query(`ALTER TABLE admins ADD COLUMN email TEXT UNIQUE;`);
+      console.log("🛠️ Columna 'email' añadida a admins");
     }
-  }
-}
 
-async function createDefaultAdminIfEmpty(){
-  const r = await pool.query('SELECT id FROM admins LIMIT 1');
-  if (r.rowCount === 0){
-    const defaultEmail = process.env.DEFAULT_ADMIN_USER || 'admin@example.com';
-    const defaultPass = process.env.DEFAULT_ADMIN_PASSWORD || 'admin123';
-    const hashed = await bcrypt.hash(defaultPass, 10);
-    await pool.query('INSERT INTO admins (email, password_hash) VALUES ($1, $2)', [defaultEmail, hashed]);
-    console.log('🚀 Admin por defecto creado (email:', defaultEmail + ')');
-  } else {
-    console.log('✅ Admin ya existe, no se crea por defecto');
-  }
-}
+    if (!columns.includes("password_hash")) {
+      await pool.query(`ALTER TABLE admins ADD COLUMN password_hash TEXT;`);
+      console.log("🛠️ Columna 'password_hash' añadida a admins");
+    }
 
-async function initDB(){
-  await ensureTable();
-  await ensurePasswordHashColumn();
-  await createDefaultAdminIfEmpty();
+    // 3. Crear admin por defecto si no existe
+    const existing = await pool.query("SELECT * FROM admins LIMIT 1;");
+    if (existing.rows.length === 0) {
+      const hash = await bcrypt.hash("admin123", 10);
+      await pool.query(
+        "INSERT INTO admins (email, password_hash) VALUES ($1, $2)",
+        ["admin@example.com", hash]
+      );
+      console.log("✅ Admin por defecto creado: admin@example.com / admin123");
+    }
+  } catch (err) {
+    console.error("DB init error", err);
+  }
 }
 
 module.exports = { pool, initDB };
