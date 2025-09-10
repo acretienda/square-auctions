@@ -3,25 +3,26 @@ services:
     name: square-auctions
     env: node
     plan: free
+    region: oregon
     buildCommand: "npm install"
-    startCommand: "node server.js"
-    nodeVersion: 20
+    startCommand: "npm start"
     envVars:
-      - key: NODE_ENV
-        value: production
       - key: DATABASE_URL
         fromDatabase:
           name: square-auctions-db
           property: connectionString
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: PUBLIC_BASE_URL
+        sync: false   # aquí luego pones tu dominio público de Render
       - key: SQUARE_ACCESS_TOKEN
         sync: false
       - key: SQUARE_ENVIRONMENT
-        sync: false
-      - key: PUBLIC_BASE_URL
-        sync: false
+        value: sandbox
 
 databases:
   - name: square-auctions-db
     plan: free
-
-    plan: free
+    region: oregon
