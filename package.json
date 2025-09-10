@@ -14,7 +14,8 @@
     "dotenv": "^16.0.3",
     "square": "^43.0.2",
     "body-parser": "^1.20.2",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "socket.io": "^4.7.5"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
