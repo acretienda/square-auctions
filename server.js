@@ -1,30 +1,27 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import initDB from "./db.js";
 import authRoutes from "./routes/auth.js";
 
-dotenv.config();
-
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
 
-// Rutas
+// Rutas principales
 app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Square Auctions backend activo ✅");
+  res.send("Square Auctions backend (admins OK)");
 });
 
-// Inicializar DB y arrancar server
+// Inicializar base de datos y levantar servidor
 initDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`🚀 Server corriendo en puerto ${PORT}`);
+    console.log(`✅ Server running on port ${PORT}`);
   });
 }).catch(err => {
-  console.error("❌ Error al inicializar DB:", err);
+  console.error("❌ Error iniciando DB:", err);
 });
