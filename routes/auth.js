@@ -1,37 +1,26 @@
-import express from "express";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { pool } from "../db.js";
+import express from 'express';
+import pool from '../db.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const router = express.Router();
 
-// Login de admins
-router.post("/login", async (req, res) => {
+router.post('/login', async (req, res) => {
   const { email, password } = req.body;
-
   try {
-    const result = await pool.query("SELECT * FROM admins WHERE email = $1", [email]);
+    const result = await pool.query('SELECT * FROM admins WHERE email=$1', [email]);
     if (result.rows.length === 0) {
-      return res.status(401).json({ error: "Credenciales incorrectas" });
+      return res.status(401).json({ error: 'Usuario no encontrado' });
     }
 
     const admin = result.rows[0];
-    const passwordMatch = await bcrypt.compare(password, admin.password_hash);
+    const valid = await bcrypt.compare(password, admin.password);
+    if (!valid) return res.status(401).json({ error: 'Contraseña incorrecta' });
 
-    if (!passwordMatch) {
-      return res.status(401).json({ error: "Credenciales incorrectas" });
-    }
-
-    const token = jwt.sign(
-      { id: admin.id, email: admin.email, username: admin.username },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    res.json({ token, admin: { id: admin.id, username: admin.username, email: admin.email } });
+    const token = jwt.sign({ id: admin.id, email: admin.email }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
+    res.json({ token });
   } catch (err) {
-    console.error("❌ Error en login:", err);
-    res.status(500).json({ error: "Error en el servidor" });
+    res.status(500).json({ error: 'Error en el servidor' });
   }
 });
 
