@@ -1,52 +1,60 @@
-import pkg from 'pg';
-import bcrypt from 'bcryptjs';
-
-const { Pool } = pkg;
+// db.js
+const { Pool } = require("pg");
+const bcrypt = require("bcrypt");
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false },
 });
 
-export const initDB = async () => {
+async function initDB() {
   const client = await pool.connect();
   try {
+    // Crear tabla admins si no existe
     await client.query(`
       CREATE TABLE IF NOT EXISTS admins (
         id SERIAL PRIMARY KEY,
-        username VARCHAR(50) UNIQUE NOT NULL,
-        email VARCHAR(100) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL
-      );
+        username TEXT UNIQUE NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL
+      )
     `);
 
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS auctions (
-        id SERIAL PRIMARY KEY,
-        title VARCHAR(100) NOT NULL,
-        description TEXT,
-        starting_price NUMERIC NOT NULL,
-        created_at TIMESTAMP DEFAULT NOW()
-      );
-    `);
+    // Verificar columnas (por si la tabla estaba creada a medias)
+    const res = await client.query(
+      `SELECT column_name FROM information_schema.columns WHERE table_name='admins'`
+    );
+    const cols = res.rows.map((r) => r.column_name);
 
-    // Crear admin por defecto si no existe
-    const res = await client.query('SELECT * FROM admins WHERE email=$1', ['admin@example.com']);
-    if (res.rows.length === 0) {
-      const hashed = await bcrypt.hash('admin123', 10);
+    if (!cols.includes("username")) {
+      await client.query(`ALTER TABLE admins ADD COLUMN username TEXT UNIQUE NOT NULL DEFAULT 'admin'`);
+      console.log("🛠️ Columna 'username' añadida a admins");
+    }
+    if (!cols.includes("email")) {
+      await client.query(`ALTER TABLE admins ADD COLUMN email TEXT UNIQUE NOT NULL DEFAULT 'admin@example.com'`);
+      console.log("🛠️ Columna 'email' añadida a admins");
+    }
+    if (!cols.includes("password_hash")) {
+      await client.query(`ALTER TABLE admins ADD COLUMN password_hash TEXT NOT NULL DEFAULT ''`);
+      console.log("🛠️ Columna 'password_hash' añadida a admins");
+    }
+
+    // Crear admin por defecto si la tabla está vacía
+    const result = await client.query("SELECT COUNT(*) FROM admins");
+    if (parseInt(result.rows[0].count) === 0) {
+      const passwordHash = await bcrypt.hash("admin123", 10);
       await client.query(
-        'INSERT INTO admins (username, email, password) VALUES ($1, $2, $3)',
-        ['admin', 'admin@example.com', hashed]
+        `INSERT INTO admins (username, email, password_hash)
+         VALUES ($1, $2, $3)`,
+        ["admin", "admin@example.com", passwordHash]
       );
-      console.log('✅ Admin por defecto creado: admin@example.com / admin123');
-    } else {
-      console.log('🛠️ Admin ya existe');
+      console.log("✅ Admin por defecto creado (usuario=admin, password=admin123)");
     }
   } catch (err) {
-    console.error('❌ Error al inicializar DB:', err);
+    console.error("DB init error", err);
   } finally {
     client.release();
   }
-};
+}
 
-export default pool;
+module.exports = { pool, initDB };
